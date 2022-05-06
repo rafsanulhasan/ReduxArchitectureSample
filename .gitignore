@@ -25,19 +25,23 @@ x64/
 x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
+build/
 bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
 
-# Visual Studio 2015/2017 cache/options directory
+# Visual Studio 2015/2017/2019 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
+
+# Jetbrains Rider cache/options directory
+.idea/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -65,9 +69,11 @@ artifacts/
 StyleCopReport.xml
 
 # Files built by Visual Studio
+
 *_i.c
 *_p.c
 *_h.h
+*_i.h
 *.ilk
 *.meta
 *.obj
@@ -126,6 +132,9 @@ $tf/
 _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
+
+# JustCode is a .NET coding add-in
+.JustCode
 
 # TeamCity is a build add-in
 _TeamCity*
@@ -186,6 +195,10 @@ PublishScripts/
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
+
+# NuGet Packages
+*.nupkg
+
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
@@ -205,6 +218,11 @@ ecf/
 rcf/
 
 # Windows Store app package directories and files
+
+# Microsoft Azure ApplicationInsights config file
+ApplicationInsights.config
+
+# Windows Store app package directory
 AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
@@ -217,7 +235,7 @@ _pkginfo.txt
 # files ending in .cache can be ignored
 *.[Cc]ache
 # but keep track of directories ending in .cache
-!?*.[Cc]ache/
+!*.[Cc]ache/
 
 # Others
 ClientBin/
@@ -298,6 +316,9 @@ paket-files/
 
 # FAKE - F# Make
 .fake/
+/NDependOut
+/ReduxArchitecture.ndproj
+/.mfractor
 
 # CodeRush personal settings
 .cr/personal
@@ -348,3 +369,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
