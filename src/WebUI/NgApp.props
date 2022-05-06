@@ -1,7 +1,7 @@
 ﻿<Project>
     <PropertyGroup>
         <NgSpaRoot>NgApp\</NgSpaRoot>
-        <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);$(NgSpaRoot)node_modules\**</DefaultItemExcludes>
         <!-- Set this to true if you enable server-side prerendering -->
         <BuildServerSideRenderer>false</BuildServerSideRenderer>
     </PropertyGroup>
