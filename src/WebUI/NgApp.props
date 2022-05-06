@@ -1,0 +1,19 @@
+﻿<Project>
+    <PropertyGroup>
+        <NgSpaRoot>NgApp\</NgSpaRoot>
+        <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+        <!-- Set this to true if you enable server-side prerendering -->
+        <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Don't publish the SPA source files, but do show them in the project files list -->
+        <Content Remove="$(NgSpaRoot)**" />
+        <None Remove="$(NgSpaRoot)**" />
+        <None Include="$(NgSpaRoot)**" Exclude="$(NgSpaRoot)node_modules\**" />
+        <Content Remove="NgApp.props" />
+        <None Remove="NgApp.props" />
+        <Content Remove="NgApp.targets" />
+        <None Remove="NgApp.targets" />
+    </ItemGroup>
+</Project>
