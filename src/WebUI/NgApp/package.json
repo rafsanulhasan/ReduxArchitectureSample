@@ -41,7 +41,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "typescript": "4.2.4"
   },
-  "name": "reduxarchitecture.webui",
+  "name": "reduxarchitecture.angularapp",
   "optionalDependencies": {
     "protractor": "~7.0.0",
     "ts-node": "~5.0.1",
