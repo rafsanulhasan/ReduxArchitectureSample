@@ -1,0 +1,31 @@
+﻿<Project>
+    <PropertyGroup>
+        <ReactSpaRoot>ReactApp\</ReactSpaRoot>
+        <DefaultItemExcludes>$(DefaultItemExcludes);$(ReactSpaRoot)node_modules\**;$(ReactSpaRoot)build\**;</DefaultItemExcludes>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Don't publish the SPA source files, but do show them in the project files list -->
+        <Content Remove="$(ReactSpaRoot)**" />
+        <None Remove="$(ReactSpaRoot)**" />
+        <None Include="$(ReactSpaRoot)**" Exclude="$(ReactSpaRoot)node_modules\**;" />
+        <Compile Remove="ReactApp.props" />
+        <Content Remove="ReactApp.props" />
+        <None Remove="ReactApp.props" />
+        <Compile Remove="ReactApp.targets" />
+        <Content Remove="ReactApp.targets" />
+        <None Remove="ReactApp.targets" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="$(ReactSpaRoot)build\**" />
+        <Compile Remove="$(ReactSpaRoot)node_modules\**" />
+        <Content Remove="$(ReactSpaRoot)build\**" />
+        <Content Remove="$(ReactSpaRoot)node_modules\**" />
+        <EmbeddedResource Remove="$(ReactSpaRoot)build\**" />
+        <EmbeddedResource Remove="$(ReactSpaRoot)node_modules\**" />
+        <None Remove="$(ReactSpaRoot)build\**" />
+        <None Remove="$(ReactSpaRoot)node_modules\**" />
+    </ItemGroup>
+    
+</Project>

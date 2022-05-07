@@ -2,50 +2,33 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReduxArchitecture.Infrastructure.Identity;
 using ReduxArchitecture.Infrastructure.Persistence;
+using static ReduxArchitecture.WebUI.Constants.SpaConstants;
 
-namespace ReduxArchitecture.WebUI
+namespace ReduxArchitecture.WebUI;
+
+public class Program
 {
-    public class Program
+    public async static Task Main(string[] args)
     {
-        public async static Task Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-
-                try
-                {
-                    var context = services.GetRequiredService<ApplicationDbContext>();
-
-                    if (context.Database.IsSqlServer())
-                    {
-                        context.Database.Migrate();
-                    }
-
-                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-                    await ApplicationDbContextSeed.SeedDefaultUserAsync(userManager, roleManager);
-                    await ApplicationDbContextSeed.SeedSampleDataAsync(context);
-                }
-                catch (Exception ex)
-                {
-                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-                    logger.LogError(ex, "An error occurred while migrating or seeding the database.");
-
-                    throw;
-                }
-            }
-
-            await host.RunAsync();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                    webBuilder.UseStartup<Startup>());
+        var apiHost = CreateApiHostBuilder(args).Build();
+        await apiHost.RunAsync();
     }
+
+    public static IHostBuilder CreateApiHostBuilder(string[] args) =>
+        Host
+            .CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder
+                    .UseKestrel((ctx, opt)
+                        => opt.ConfigureEndpointDefaults(listenOptions
+                                => listenOptions.UseHttps()))
+                    .UseUrls(AppHosts.ApiApp.FullHost)
+                    .UseIISIntegration();
+                webBuilder.ConfigureServices(services =>
+                {
+                    services.AddLogging(b => b.AddDebug().AddConsole().AddEventLog().AddEventSourceLogger());
+                });
+                webBuilder.UseStartup<Startup>();
+            });
 }

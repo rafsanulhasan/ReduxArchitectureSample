@@ -2,5 +2,6 @@
 
 public static class ConfigurationConstants
 {
-    public const string SpaBaseUrl = nameof(SpaBaseUrl);
+    public const string AngularSpaBaseUrl = nameof(AngularSpaBaseUrl);
+    public const string ReactSpaBaseUrl = nameof(ReactSpaBaseUrl);
 }

@@ -1,7 +1,7 @@
 ﻿<Project>
     <PropertyGroup>
         <NgSpaRoot>NgApp\</NgSpaRoot>
-        <DefaultItemExcludes>$(DefaultItemExcludes);$(NgSpaRoot)node_modules\**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);$(NgSpaRoot)node_modules\**;</DefaultItemExcludes>
         <!-- Set this to true if you enable server-side prerendering -->
         <BuildServerSideRenderer>false</BuildServerSideRenderer>
     </PropertyGroup>
@@ -11,9 +11,22 @@
         <Content Remove="$(NgSpaRoot)**" />
         <None Remove="$(NgSpaRoot)**" />
         <None Include="$(NgSpaRoot)**" Exclude="$(NgSpaRoot)node_modules\**" />
+        <Compile Remove="NgApp.props" />
         <Content Remove="NgApp.props" />
         <None Remove="NgApp.props" />
         <Content Remove="NgApp.targets" />
         <None Remove="NgApp.targets" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="$(NgSpaRoot)dist\**" />
+        <Compile Remove="$(NgSpaRoot)node_modules\**" />
+        <Content Remove="$(NgSpaRoot)dist\**" />
+        <Content Remove="$(NgSpaRoot)node_modules\**" />
+        <EmbeddedResource Remove="$(NgSpaRoot)dist\**" />
+        <EmbeddedResource Remove="$(NgSpaRoot)node_modules\**" />
+        <None Include="$(NgSpaRoot)dist\**" />
+        <None Remove="$(NgSpaRoot)node_modules\**" />
+    </ItemGroup>
+    
 </Project>

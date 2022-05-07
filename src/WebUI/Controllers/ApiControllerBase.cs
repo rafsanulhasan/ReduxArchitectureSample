@@ -2,14 +2,13 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace ReduxArchitecture.WebUI.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public abstract class ApiControllerBase : ControllerBase
-    {
-        private ISender _mediator = null!;
+namespace ReduxArchitecture.WebUI.Controllers;
 
-        protected ISender Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
-    }
+[ApiController]
+[Route("api/[controller]")]
+public abstract class ApiControllerBase : ControllerBase
+{
+    private ISender _mediator = null!;
+
+    protected ISender Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
 }
