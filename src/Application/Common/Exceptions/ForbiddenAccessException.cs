@@ -1,7 +1,6 @@
-﻿namespace ReduxArchitecture.Application.Common.Exceptions
+﻿namespace ReduxArchitecture.Application.Common.Exceptions;
+
+public class ForbiddenAccessException : Exception
 {
-    public class ForbiddenAccessException : Exception
-    {
-        public ForbiddenAccessException() : base() { }
-    }
+    public ForbiddenAccessException() : base() { }
 }

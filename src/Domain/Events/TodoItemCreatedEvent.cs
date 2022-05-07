@@ -1,12 +1,11 @@
-﻿namespace ReduxArchitecture.Domain.Events
-{
-    public class TodoItemCreatedEvent : DomainEvent
-    {
-        public TodoItemCreatedEvent(TodoItem item)
-        {
-            Item = item;
-        }
+﻿namespace ReduxArchitecture.Domain.Events;
 
-        public TodoItem Item { get; }
+public class TodoItemCreatedEvent : DomainEvent
+{
+    public TodoItemCreatedEvent(TodoItem item)
+    {
+        Item = item;
     }
+
+    public TodoItem Item { get; }
 }

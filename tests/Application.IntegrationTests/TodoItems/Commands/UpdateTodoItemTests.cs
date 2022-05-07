@@ -5,51 +5,49 @@ using ReduxArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using ReduxArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using ReduxArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using ReduxArchitecture.Domain.Entities;
-using static Testing;
 
-namespace ReduxArchitecture.Application.IntegrationTests.TodoItems.Commands
+namespace ReduxArchitecture.Application.IntegrationTests.TodoItems.Commands;
+
+public class UpdateTodoItemTests : TestBase
 {
-    public class UpdateTodoItemTests : TestBase
+    [Test]
+    public async Task ShouldRequireValidTodoItemId()
     {
-        [Test]
-        public async Task ShouldRequireValidTodoItemId()
+        var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
+        await FluentActions.Invoking(() => Testing.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Test]
+    public async Task ShouldUpdateTodoItem()
+    {
+        var userId = await Testing.RunAsDefaultUserAsync();
+
+        var listId = await Testing.SendAsync(new CreateTodoListCommand
         {
-            var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
-            await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
-        }
+            Title = "New List"
+        });
 
-        [Test]
-        public async Task ShouldUpdateTodoItem()
+        var itemId = await Testing.SendAsync(new CreateTodoItemCommand
         {
-            var userId = await RunAsDefaultUserAsync();
+            ListId = listId,
+            Title = "New Item"
+        });
 
-            var listId = await SendAsync(new CreateTodoListCommand
-            {
-                Title = "New List"
-            });
+        var command = new UpdateTodoItemCommand
+        {
+            Id = itemId,
+            Title = "Updated Item Title"
+        };
 
-            var itemId = await SendAsync(new CreateTodoItemCommand
-            {
-                ListId = listId,
-                Title = "New Item"
-            });
+        await Testing.SendAsync(command);
 
-            var command = new UpdateTodoItemCommand
-            {
-                Id = itemId,
-                Title = "Updated Item Title"
-            };
+        var item = await Testing.FindAsync<TodoItem>(itemId);
 
-            await SendAsync(command);
-
-            var item = await FindAsync<TodoItem>(itemId);
-
-            item.Should().NotBeNull();
-            item!.Title.Should().Be(command.Title);
-            item.LastModifiedBy.Should().NotBeNull();
-            item.LastModifiedBy.Should().Be(userId);
-            item.LastModified.Should().NotBeNull();
-            item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
-        }
+        item.Should().NotBeNull();
+        item!.Title.Should().Be(command.Title);
+        item.LastModifiedBy.Should().NotBeNull();
+        item.LastModifiedBy.Should().Be(userId);
+        item.LastModified.Should().NotBeNull();
+        item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

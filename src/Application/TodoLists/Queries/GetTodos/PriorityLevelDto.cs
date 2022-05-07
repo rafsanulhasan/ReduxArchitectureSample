@@ -1,9 +1,8 @@
-﻿namespace ReduxArchitecture.Application.TodoLists.Queries.GetTodos
-{
-    public class PriorityLevelDto
-    {
-        public int Value { get; set; }
+﻿namespace ReduxArchitecture.Application.TodoLists.Queries.GetTodos;
 
-        public string? Name { get; set; }
-    }
+public class PriorityLevelDto
+{
+    public int Value { get; set; }
+
+    public string? Name { get; set; }
 }

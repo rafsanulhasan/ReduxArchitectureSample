@@ -1,7 +1,6 @@
-﻿namespace ReduxArchitecture.Application.Common.Interfaces
+﻿namespace ReduxArchitecture.Application.Common.Interfaces;
+
+public interface ICurrentUserService
 {
-    public interface ICurrentUserService
-    {
-        string? UserId { get; }
-    }
+    string? UserId { get; }
 }

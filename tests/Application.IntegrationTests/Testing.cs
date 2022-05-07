@@ -12,165 +12,164 @@ using ReduxArchitecture.Infrastructure.Persistence;
 using ReduxArchitecture.WebUI;
 using Respawn;
 
-namespace ReduxArchitecture.Application.IntegrationTests
+namespace ReduxArchitecture.Application.IntegrationTests;
+
+[SetUpFixture]
+public class Testing
 {
-    [SetUpFixture]
-    public class Testing
+    private static IConfigurationRoot _configuration = null!;
+    private static IServiceScopeFactory _scopeFactory = null!;
+    private static Checkpoint _checkpoint = null!;
+    private static string? _currentUserId;
+
+    [OneTimeSetUp]
+    public void RunBeforeAnyTests()
     {
-        private static IConfigurationRoot _configuration = null!;
-        private static IServiceScopeFactory _scopeFactory = null!;
-        private static Checkpoint _checkpoint = null!;
-        private static string? _currentUserId;
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", true, true)
+            .AddEnvironmentVariables();
 
-        [OneTimeSetUp]
-        public void RunBeforeAnyTests()
+        _configuration = builder.Build();
+
+        var startup = new Startup(_configuration);
+
+        var services = new ServiceCollection();
+
+        services.AddSingleton(Mock.Of<IWebHostEnvironment>(w =>
+            w.EnvironmentName == "Development" &&
+            w.ApplicationName == "ReduxArchitecture.WebUI"));
+
+        services.AddLogging();
+
+        startup.ConfigureServices(services);
+
+        // Replace service registration for ICurrentUserService
+        // Remove existing registration
+        var currentUserServiceDescriptor = services.FirstOrDefault(d =>
+            d.ServiceType == typeof(ICurrentUserService));
+
+        if (currentUserServiceDescriptor != null)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .AddEnvironmentVariables();
+            services.Remove(currentUserServiceDescriptor);
+        }
 
-            _configuration = builder.Build();
+        // Register testing version
+        services.AddTransient(provider =>
+            Mock.Of<ICurrentUserService>(s => s.UserId == _currentUserId));
 
-            var startup = new Startup(_configuration);
+        _scopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
 
-            var services = new ServiceCollection();
+        _checkpoint = new Checkpoint
+        {
+            TablesToIgnore = new[] { "__EFMigrationsHistory" }
+        };
 
-            services.AddSingleton(Mock.Of<IWebHostEnvironment>(w =>
-                w.EnvironmentName == "Development" &&
-                w.ApplicationName == "ReduxArchitecture.WebUI"));
+        EnsureDatabase();
+    }
 
-            services.AddLogging();
+    private static void EnsureDatabase()
+    {
+        using var scope = _scopeFactory.CreateScope();
 
-            startup.ConfigureServices(services);
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Replace service registration for ICurrentUserService
-            // Remove existing registration
-            var currentUserServiceDescriptor = services.FirstOrDefault(d =>
-                d.ServiceType == typeof(ICurrentUserService));
+        context.Database.Migrate();
+    }
 
-            if (currentUserServiceDescriptor != null)
+    public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+
+        return await mediator.Send(request);
+    }
+
+    public static async Task<string> RunAsDefaultUserAsync()
+    {
+        return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
+    }
+
+    public static async Task<string> RunAsAdministratorAsync()
+    {
+        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { "Administrator" });
+    }
+
+    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var user = new ApplicationUser { UserName = userName, Email = userName };
+
+        var result = await userManager.CreateAsync(user, password);
+
+        if (roles.Any())
+        {
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            foreach (var role in roles)
             {
-                services.Remove(currentUserServiceDescriptor);
+                await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            // Register testing version
-            services.AddTransient(provider =>
-                Mock.Of<ICurrentUserService>(s => s.UserId == _currentUserId));
-
-            _scopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
-
-            _checkpoint = new Checkpoint
-            {
-                TablesToIgnore = new[] { "__EFMigrationsHistory" }
-            };
-
-            EnsureDatabase();
+            await userManager.AddToRolesAsync(user, roles);
         }
 
-        private static void EnsureDatabase()
+        if (result.Succeeded)
         {
-            using var scope = _scopeFactory.CreateScope();
+            _currentUserId = user.Id;
 
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            context.Database.Migrate();
+            return _currentUserId;
         }
 
-        public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
-        {
-            using var scope = _scopeFactory.CreateScope();
+        var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
-            var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+    }
 
-            return await mediator.Send(request);
-        }
+    public static async Task ResetState()
+    {
+        await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
 
-        public static async Task<string> RunAsDefaultUserAsync()
-        {
-            return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
-        }
+        _currentUserId = null;
+    }
 
-        public static async Task<string> RunAsAdministratorAsync()
-        {
-            return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { "Administrator" });
-        }
+    public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
+        where TEntity : class
+    {
+        using var scope = _scopeFactory.CreateScope();
 
-        public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
-        {
-            using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        return await context.FindAsync<TEntity>(keyValues);
+    }
 
-            var user = new ApplicationUser { UserName = userName, Email = userName };
+    public static async Task AddAsync<TEntity>(TEntity entity)
+        where TEntity : class
+    {
+        using var scope = _scopeFactory.CreateScope();
 
-            var result = await userManager.CreateAsync(user, password);
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            if (roles.Any())
-            {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        context.Add(entity);
 
-                foreach (var role in roles)
-                {
-                    await roleManager.CreateAsync(new IdentityRole(role));
-                }
+        await context.SaveChangesAsync();
+    }
 
-                await userManager.AddToRolesAsync(user, roles);
-            }
+    public static async Task<int> CountAsync<TEntity>() where TEntity : class
+    {
+        using var scope = _scopeFactory.CreateScope();
 
-            if (result.Succeeded)
-            {
-                _currentUserId = user.Id;
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                return _currentUserId;
-            }
+        return await context.Set<TEntity>().CountAsync();
+    }
 
-            var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
-
-            throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
-        }
-
-        public static async Task ResetState()
-        {
-            await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
-
-            _currentUserId = null;
-        }
-
-        public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
-            where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
-
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            return await context.FindAsync<TEntity>(keyValues);
-        }
-
-        public static async Task AddAsync<TEntity>(TEntity entity)
-            where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
-
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            context.Add(entity);
-
-            await context.SaveChangesAsync();
-        }
-
-        public static async Task<int> CountAsync<TEntity>() where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
-
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            return await context.Set<TEntity>().CountAsync();
-        }
-
-        [OneTimeTearDown]
-        public void RunAfterAnyTests()
-        {
-        }
+    [OneTimeTearDown]
+    public void RunAfterAnyTests()
+    {
     }
 }

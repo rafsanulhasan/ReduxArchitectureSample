@@ -1,9 +1,8 @@
 ﻿using ReduxArchitecture.Application.TodoLists.Queries.ExportTodos;
 
-namespace ReduxArchitecture.Application.Common.Interfaces
+namespace ReduxArchitecture.Application.Common.Interfaces;
+
+public interface ICsvFileBuilder
 {
-    public interface ICsvFileBuilder
-    {
-        byte[] BuildTodoItemsFile(IEnumerable<TodoItemRecord> records);
-    }
+    byte[] BuildTodoItemsFile(IEnumerable<TodoItemRecord> records);
 }

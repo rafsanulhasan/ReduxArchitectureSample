@@ -3,49 +3,48 @@ using NUnit.Framework;
 using ReduxArchitecture.Domain.Exceptions;
 using ReduxArchitecture.Domain.ValueObjects;
 
-namespace ReduxArchitecture.Domain.UnitTests.ValueObjects
+namespace ReduxArchitecture.Domain.UnitTests.ValueObjects;
+
+public class ColourTests
 {
-    public class ColourTests
+    [Test]
+    public void ShouldReturnCorrectColourCode()
     {
-        [Test]
-        public void ShouldReturnCorrectColourCode()
-        {
-            var code = "#FFFFFF";
+        var code = "#FFFFFF";
 
-            var colour = Colour.From(code);
+        var colour = Colour.From(code);
 
-            colour.Code.Should().Be(code);
-        }
+        colour.Code.Should().Be(code);
+    }
 
-        [Test]
-        public void ToStringReturnsCode()
-        {
-            var colour = Colour.White;
+    [Test]
+    public void ToStringReturnsCode()
+    {
+        var colour = Colour.White;
 
-            colour.ToString().Should().Be(colour.Code);
-        }
+        colour.ToString().Should().Be(colour.Code);
+    }
 
-        [Test]
-        public void ShouldPerformImplicitConversionToColourCodeString()
-        {
-            string code = Colour.White;
+    [Test]
+    public void ShouldPerformImplicitConversionToColourCodeString()
+    {
+        string code = Colour.White;
 
-            code.Should().Be("#FFFFFF");
-        }
+        code.Should().Be("#FFFFFF");
+    }
 
-        [Test]
-        public void ShouldPerformExplicitConversionGivenSupportedColourCode()
-        {
-            var colour = (Colour)"#FFFFFF";
+    [Test]
+    public void ShouldPerformExplicitConversionGivenSupportedColourCode()
+    {
+        var colour = (Colour)"#FFFFFF";
 
-            colour.Should().Be(Colour.White);
-        }
+        colour.Should().Be(Colour.White);
+    }
 
-        [Test]
-        public void ShouldThrowUnsupportedColourExceptionGivenNotSupportedColourCode()
-        {
-            FluentActions.Invoking(() => Colour.From("##FF33CC"))
-                .Should().Throw<UnsupportedColourException>();
-        }
+    [Test]
+    public void ShouldThrowUnsupportedColourExceptionGivenNotSupportedColourCode()
+    {
+        FluentActions.Invoking(() => Colour.From("##FF33CC"))
+            .Should().Throw<UnsupportedColourException>();
     }
 }

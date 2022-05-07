@@ -1,9 +1,8 @@
 ﻿using ReduxArchitecture.Domain.Common;
 
-namespace ReduxArchitecture.Application.Common.Interfaces
+namespace ReduxArchitecture.Application.Common.Interfaces;
+
+public interface IDomainEventService
 {
-    public interface IDomainEventService
-    {
-        Task Publish(DomainEvent domainEvent);
-    }
+    Task Publish(DomainEvent domainEvent);
 }

@@ -4,35 +4,33 @@ using ReduxArchitecture.Application.Common.Exceptions;
 using ReduxArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using ReduxArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using ReduxArchitecture.Domain.Entities;
-using static Testing;
 
-namespace ReduxArchitecture.Application.IntegrationTests.TodoLists.Commands
+namespace ReduxArchitecture.Application.IntegrationTests.TodoLists.Commands;
+
+public class DeleteTodoListTests : TestBase
 {
-    public class DeleteTodoListTests : TestBase
+    [Test]
+    public async Task ShouldRequireValidTodoListId()
     {
-        [Test]
-        public async Task ShouldRequireValidTodoListId()
+        var command = new DeleteTodoListCommand { Id = 99 };
+        await FluentActions.Invoking(() => Testing.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Test]
+    public async Task ShouldDeleteTodoList()
+    {
+        var listId = await Testing.SendAsync(new CreateTodoListCommand
         {
-            var command = new DeleteTodoListCommand { Id = 99 };
-            await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
-        }
+            Title = "New List"
+        });
 
-        [Test]
-        public async Task ShouldDeleteTodoList()
+        await Testing.SendAsync(new DeleteTodoListCommand
         {
-            var listId = await SendAsync(new CreateTodoListCommand
-            {
-                Title = "New List"
-            });
+            Id = listId
+        });
 
-            await SendAsync(new DeleteTodoListCommand
-            {
-                Id = listId
-            });
+        var list = await Testing.FindAsync<TodoList>(listId);
 
-            var list = await FindAsync<TodoList>(listId);
-
-            list.Should().BeNull();
-        }
+        list.Should().BeNull();
     }
 }
