@@ -50,13 +50,13 @@
   "private": true,
   "scripts": {
     "build": "ng build",
-    "build:ssr": "ng run ReduxArchitecture.WebUI:server:dev",
+    "build:ssr": "ng run ReduxArchitecture.AngularApp:server:dev",
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
     "start": "echo 'Starting...' && ng serve",
-    "start:dev": "echo 'Starting (Dev)...' && ng serve --host 0.0.0.0 --port 5200 --disable-host-check",
+    "start:dev": "echo 'Starting (Dev)...' && ng serve --host 0.0.0.0 --port 5201 --disable-host-check",
     "test": "ng test"
   },
-  "version": "0.0.0"
+  "version": "1.0.0"
 }

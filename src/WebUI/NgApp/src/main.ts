@@ -2,6 +2,7 @@ import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
+import { API_BASE_URL } from './app/web-api-client';
 import { environment } from './environments/environment';
 
 export function getBaseUrl() {
@@ -9,7 +10,7 @@ export function getBaseUrl() {
 }
 
 const providers = [
-  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
+  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] },
 ];
 
 if (environment.production) {

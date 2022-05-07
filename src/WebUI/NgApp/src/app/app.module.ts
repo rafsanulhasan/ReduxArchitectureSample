@@ -16,6 +16,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AppRoutingModule } from './app-routing.module';
 import { TokenComponent } from './token/token.component';
+import { API_BASE_URL } from './web-api-client';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [

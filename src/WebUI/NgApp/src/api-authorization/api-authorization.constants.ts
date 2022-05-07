@@ -1,4 +1,4 @@
-export const ApplicationName = 'ReduxArchitecture.WebUI';
+export const ApplicationName = 'ReduxArchitecture.AngularApp';
 
 export const ReturnUrlType = 'returnUrl';
 
