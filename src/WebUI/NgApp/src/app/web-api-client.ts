@@ -1086,8 +1086,8 @@ export class TodoItemDto implements ITodoItemDto {
 
     static fromJS(data: any): TodoItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new TodoItemDto();
-        result.init(data);
+        let result = new TodoItemDto(data);
+        //result.init(data);
         return result;
     }
 
